@@ -49,6 +49,6 @@ echo "Zipped backup size:"
 du -hs "/data/$BACKUP_SET.tar.gz"
 
 echo "Pushing /data/$BACKUP_SET.tar.gz -> $S3_BUCKET_PATH"
-aws s3 cp "/data/$BACKUP_SET.tar.gz" "$S3_BUCKET_PATH"
+aws s3 cp "/data/$BACKUP_SET.tar.gz" "$S3_BUCKET_PATH/$BACKUP_SET.tar.gz"
 
 exit $?
