@@ -37,7 +37,7 @@ neo4j-admin backup \
     --pagecache=$PAGE_CACHE
 
 echo "Backup size:"
-du -hs "/data/$BACKUP_SET"
+du -hs "/data/$BACKUP_SET.tar"
 
 echo "Tarring -> /data/$BACKUP_SET.tar"
 tar -cvf "/data/$BACKUP_SET.tar" "/data/$BACKUP_SET" --remove-files
@@ -48,7 +48,7 @@ gzip -9 "/data/$BACKUP_SET.tar"
 echo "Zipped backup size:"
 du -hs "/data/$BACKUP_SET.tar.gz"
 
-echo "Pushing /data/$BACKUP_SET.tar.gz -> $S3_BUCKET_PATH"
+echo "Pushing /data/$BACKUP_SET.tar.gz -> $S3_BUCKET_PATH/$BACKUP_SET.tar.gz"
 aws s3 cp "/data/$BACKUP_SET.tar.gz" "$S3_BUCKET_PATH/$BACKUP_SET.tar.gz"
 
 exit $?
