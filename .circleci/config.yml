@@ -1,0 +1,20 @@
+version: 2
+jobs:
+  docker-build:
+    working_directory: ~/repo
+    docker:
+      - image: circleci/node:10.16.0
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+          version: 18.06.0-ce
+      - run:
+          name: Build docker image
+          command: docker build . -t test;
+
+workflows:
+  version: 2
+  cicd-pipeline:
+    jobs:
+      - docker-build
