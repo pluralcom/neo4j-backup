@@ -1,0 +1,28 @@
+# node
+node_modules
+
+# build
+build/
+
+# test
+coverage
+code-report
+
+# logs
+logs.log
+npm-debug.log
+npm-debug.log.663619011
+npm-debug.log.*
+yarn-error.logs
+
+# editors
+.vscode
+
+# misc
+.DS_Store
+._.DS_Store
+temp
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
