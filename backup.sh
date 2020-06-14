@@ -25,30 +25,30 @@ fi
 BACKUP_SET="$BACKUP_NAME-$(date "+%Y-%m-%d")"
 
 echo "=============== Neo4j Backup ==============================="
-echo "Beginning backup from $NEO4J_ADDR to /data/$BACKUP_SET"
+echo "Beginning backup from $NEO4J_ADDR to /backup/$BACKUP_SET"
 echo "Using heap size $HEAP_SIZE and page cache $PAGE_CACHE"
 echo "To S3 bucket $S3_BUCKET_PATH"
 echo "============================================================"
 
 neo4j-admin backup \
     --from="$NEO4J_ADDR" \
-    --backup-dir=/data \
+    --backup-dir=/backup \
     --name="$BACKUP_SET" \
     --pagecache=$PAGE_CACHE
 
 echo "Backup size:"
-du -hs "/data/$BACKUP_SET.tar"
+du -hs "/backup/$BACKUP_SET.tar"
 
-echo "Tarring -> /data/$BACKUP_SET.tar"
-tar -cvf "/data/$BACKUP_SET.tar" "/data/$BACKUP_SET" --remove-files
+echo "Tarring -> /backup/$BACKUP_SET.tar"
+tar -cvf "/backup/$BACKUP_SET.tar" "/backup/$BACKUP_SET" --remove-files
 
-echo "Zipping -> /data/$BACKUP_SET.tar.gz"
-gzip -9 "/data/$BACKUP_SET.tar"
+echo "Zipping -> /backup/$BACKUP_SET.tar.gz"
+gzip -9 "/backup/$BACKUP_SET.tar"
 
 echo "Zipped backup size:"
-du -hs "/data/$BACKUP_SET.tar.gz"
+du -hs "/backup/$BACKUP_SET.tar.gz"
 
-echo "Pushing /data/$BACKUP_SET.tar.gz -> $S3_BUCKET_PATH/$BACKUP_SET.tar.gz"
-aws s3 cp "/data/$BACKUP_SET.tar.gz" "$S3_BUCKET_PATH/$BACKUP_SET.tar.gz"
+echo "Pushing /backup/$BACKUP_SET.tar.gz -> $S3_BUCKET_PATH/$BACKUP_SET.tar.gz"
+aws s3 cp "/backup/$BACKUP_SET.tar.gz" "$S3_BUCKET_PATH/$BACKUP_SET.tar.gz"
 
 exit $?
