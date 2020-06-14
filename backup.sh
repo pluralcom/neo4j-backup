@@ -32,12 +32,11 @@ echo "============================================================"
 
 neo4j-admin backup \
     --from="$NEO4J_ADDR" \
-    --backup-dir=/backup \
-    --name="$BACKUP_SET" \
+    --backup-dir=/backup/$BACKUP_SET \
     --pagecache=$PAGE_CACHE
 
 echo "Backup size:"
-du -hs "/backup/$BACKUP_SET.tar"
+du -hs "/backup/$BACKUP_SET"
 
 echo "Tarring -> /backup/$BACKUP_SET.tar"
 tar -cvf "/backup/$BACKUP_SET.tar" "/backup/$BACKUP_SET" --remove-files
