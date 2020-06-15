@@ -128,7 +128,7 @@ du -hs "$RESTORE_FROM"
 cd /data && \
 echo "Dry-run command"
 echo neo4j-admin restore \
-    --from="$RESTORE_FROM" \
+    --from="$RESTORE_FROM/neo4j" \
     --database=neo4j $FORCE_FLAG
 
 # This data is output because of the way neo4j-admin works.  It writes the restored set to
@@ -139,7 +139,7 @@ df -h
 
 echo "Now restoring"
 neo4j-admin restore \
-    --from="$RESTORE_FROM" \
+    --from="$RESTORE_FROM/neo4j" \
     --database=neo4j $FORCE_FLAG
 
 RESTORE_EXIT_CODE=$?
