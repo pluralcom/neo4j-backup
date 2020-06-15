@@ -125,6 +125,9 @@ echo "Post uncompress backup size:"
 ls -al "$RESTORE_ROOT"
 du -hs "$RESTORE_FROM"
 
+echo "Unbinding from cluster"
+neo4j-admin unbind
+
 cd /data && \
 echo "Dry-run command"
 echo neo4j-admin restore \
@@ -147,33 +150,35 @@ RESTORE_EXIT_CODE=$?
 if [ "$RESTORE_EXIT_CODE" -ne 0 ]; then 
     echo "Restore process failed; will not continue"
     exit $RESTORE_EXIT_CODE
+else
+    echo "Restoration succeeded"
 fi
 
-echo "Rehoming database"
-echo "Restored to:"
-ls -l /var/lib/neo4j/data/databases
+# echo "Rehoming database"
+# echo "Restored to:"
+# ls -l /var/lib/neo4j/data/databases
 
-# neo4j-admin restore puts the DB in the wrong place, it needs to be re-homed
-# for docker.
-mkdir /data/databases
+# # neo4j-admin restore puts the DB in the wrong place, it needs to be re-homed
+# # for docker.
+# mkdir /data/databases
 
-# Danger: here we are destroying previous data.
-# Optional: you can move the database out of the way to preserve the data just in case,
-# but we don't do it this way because for large DBs this will just rapidly fill the disk
-# and cause out of disk errors.
-if [ -d "/data/databases/neo4j" ] ; then
-   if [ "$FORCE_OVERWRITE" = "true" ] ; then
-      echo "Removing previous database because FORCE_OVERWRITE=true"
-      rm -rf /data/databases/neo4j
-   fi
-fi
+# # Danger: here we are destroying previous data.
+# # Optional: you can move the database out of the way to preserve the data just in case,
+# # but we don't do it this way because for large DBs this will just rapidly fill the disk
+# # and cause out of disk errors.
+# if [ -d "/data/databases/neo4j" ] ; then
+#    if [ "$FORCE_OVERWRITE" = "true" ] ; then
+#       echo "Removing previous database because FORCE_OVERWRITE=true"
+#       rm -rf /data/databases/neo4j
+#    fi
+# fi
 
-mv /var/lib/neo4j/data/databases/neo4j /data/databases/
+# mv /var/lib/neo4j/data/databases/neo4j /data/databases/
 
 # Modify permissions/group, because we're running as root.
 # Neo4j user id is 101 on the official docker image
-chown -R 101 /data/databases
-chgrp -R 101 /data/databases
+chown -R 101:101 /data/databases
+chgrp -R 101:101 /data/transactions
 
 echo "Final permissions"
 ls -al /data/databases/neo4j
