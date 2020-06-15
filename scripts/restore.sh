@@ -31,8 +31,8 @@ echo "FORCE_OVERWRITE=$FORCE_OVERWRITE"
 ls /data/databases
 echo "============================================================"
 
-if [ -d "/data/databases/graph.db" ] ; then
-    echo "You have an existing graph database at /data/databases/graph.db"
+if [ -d "/data/databases/neo4j" ] ; then
+    echo "You have an existing neo4j database at /data/databases/neo4j"
 
     if [ "$FORCE_OVERWRITE" != "true" ] ; then
         echo "And you have not specified FORCE_OVERWRITE=true, so we will not restore because"
@@ -40,7 +40,7 @@ if [ -d "/data/databases/graph.db" ] ; then
         exit 0;
     fi
 else 
-    echo "No existing graph database found at /data/databases/graph.db"
+    echo "No existing neo4j database found at /data/databases/neo4j"
 fi
 
 # Pass the force flag to the restore operation, which will overwrite
@@ -87,7 +87,7 @@ if [[ $BACKUP_FILENAME =~ \.tar\.gz$ ]] ; then
 
     if [ -z $BACKUP_SET_DIR ] ; then
         echo "BACKUP_SET_DIR was not specified, so I am assuming this backup set was formatted by my backup utility"
-        RESTORE_FROM="$RESTORE_ROOT/data/$UNTARRED_BACKUP_DIR"
+        RESTORE_FROM="$RESTORE_ROOT/backup/$UNTARRED_BACKUP_DIR"
     else 
         RESTORE_FROM="$RESTORE_ROOT/$BACKUP_SET_DIR"
     fi
@@ -105,7 +105,7 @@ elif [[ $BACKUP_FILENAME =~ \.zip$ ]] ; then
 
     if [ -z $BACKUP_SET_DIR ] ; then
         echo "BACKUP_SET_DIR was not specified, so I am assuming this backup set was formatted by my backup utility"
-        RESTORE_FROM="$RESTORE_ROOT/data/$UNZIPPED_BACKUP_DIR"
+        RESTORE_FROM="$RESTORE_ROOT/backup/$UNZIPPED_BACKUP_DIR"
     else
         RESTORE_FROM="$RESTORE_ROOT/$BACKUP_SET_DIR"
     fi
@@ -125,11 +125,14 @@ echo "Post uncompress backup size:"
 ls -al "$RESTORE_ROOT"
 du -hs "$RESTORE_FROM"
 
+echo "Unbinding from cluster"
+neo4j-admin unbind
+
 cd /data && \
 echo "Dry-run command"
 echo neo4j-admin restore \
-    --from="$RESTORE_FROM" \
-    --database=graph.db $FORCE_FLAG
+    --from="$RESTORE_FROM/neo4j" \
+    --database=neo4j $FORCE_FLAG
 
 # This data is output because of the way neo4j-admin works.  It writes the restored set to
 # /var/lib/neo4j by default.  This can fail if volumes aren't sized appropriately, so this 
@@ -139,47 +142,28 @@ df -h
 
 echo "Now restoring"
 neo4j-admin restore \
-    --from="$RESTORE_FROM" \
-    --database=graph.db $FORCE_FLAG
+    --from="$RESTORE_FROM/neo4j" \
+    --database=neo4j $FORCE_FLAG
 
 RESTORE_EXIT_CODE=$?
 
 if [ "$RESTORE_EXIT_CODE" -ne 0 ]; then 
     echo "Restore process failed; will not continue"
     exit $RESTORE_EXIT_CODE
+else
+    echo "Restoration succeeded"
 fi
-
-echo "Rehoming database"
-echo "Restored to:"
-ls -l /var/lib/neo4j/data/databases
-
-# neo4j-admin restore puts the DB in the wrong place, it needs to be re-homed
-# for docker.
-mkdir /data/databases
-
-# Danger: here we are destroying previous data.
-# Optional: you can move the database out of the way to preserve the data just in case,
-# but we don't do it this way because for large DBs this will just rapidly fill the disk
-# and cause out of disk errors.
-if [ -d "/data/databases/graph.db" ] ; then
-   if [ "$FORCE_OVERWRITE" = "true" ] ; then
-      echo "Removing previous database because FORCE_OVERWRITE=true"
-      rm -rf /data/databases/graph.db
-   fi
-fi
-
-mv /var/lib/neo4j/data/databases/graph.db /data/databases/
 
 # Modify permissions/group, because we're running as root.
 # Neo4j user id is 101 on the official docker image
 chown -R 101 /data/databases
-chgrp -R 101 /data/databases
+chgrp -R 101 /data/transactions
 
 echo "Final permissions"
-ls -al /data/databases/graph.db
+ls -al /data/databases/neo4j
 
 echo "Final size"
-du -hs /data/databases/graph.db
+du -hs /data/databases/neo4j
 
 if [ "$PURGE_ON_COMPLETE" = true ] ; then
     echo "Purging backupset from disk"
