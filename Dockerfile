@@ -11,9 +11,14 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 RUN unzip awscliv2.zip
 RUN ./aws/install
 
-# Running backup script
 RUN mkdir /backup
-ADD ./backup.sh /scripts/backup.sh
+
+# Adding backup script
+ADD ./scripts/backup.sh /scripts/backup.sh
 RUN chmod +x /scripts/backup.sh
+
+# Adding restore script
+ADD ./scripts/restore.sh /scripts/restore.sh
+RUN chmod +x /scripts/restore.sh
 
 CMD ["/scripts/backup.sh"]

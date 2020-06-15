@@ -1,0 +1,56 @@
+name: Release and deploy to docker hub
+
+on:
+   push:
+     branches:    
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Login to docker hub
+        if: success()
+        uses: actions-hub/docker/login@master
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Setup env vars
+        id: ownEnvVars
+        run: |
+          # Set PACKAGE_VERSION
+          PACKAGE_VERSION=$(node -p -e "require('./package.json').version")
+          echo ::set-output name=PACKAGE_VERSION::$PACKAGE_VERSION
+          # Set COMMIT_LOG
+          COMMIT_LOG=`git log $(git describe --tags --abbrev=0)..HEAD --date=iso-local --format='%cd %h %an - %s  '`
+          echo ::set-output name=COMMIT_LOG::$COMMIT_LOG
+
+      - name: Build image
+        if: success()
+        run: docker build -t ${GITHUB_REPOSITORY}:${{ steps.ownEnvVars.outputs.PACKAGE_VERSION }} .
+
+      - uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.ownEnvVars.outputs.PACKAGE_VERSION }}
+          commit: master
+          body: ${{ steps.ownEnvVars.outputs.COMMIT_LOG }}
+
+      - name: Push to docker tag:version
+        if: success()
+        uses: actions-hub/docker@master
+        with:
+          args: push ${GITHUB_REPOSITORY}:${{ steps.ownEnvVars.outputs.PACKAGE_VERSION }}
+
+      - name: Slack Notification - Release
+        uses: rtCamp/action-slack-notify@v2.0.0
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_USERNAME: "dockerBot"
+          SLACK_CHANNEL: "releases_npm"
+          SLACK_ICON: "https://avatars0.githubusercontent.com/u/5429470?s=200&v=4"
+          SLACK_MESSAGE: "🦾 Released Microserive ${{github.repository}} https://github.com/${{github.repository}}/releases/tag/${{ steps.ownEnvVars.outputs.PACKAGE_VERSION }}"

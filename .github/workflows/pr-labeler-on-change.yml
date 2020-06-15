@@ -1,0 +1,14 @@
+name: PR Labeler on Change
+
+on: [pull_request_review, pull_request_review_comment]
+
+jobs:
+  label_pr:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Labeler
+      uses: estrada9166/labeler@v1
+      with:
+        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        CONFIG_PATH: .github/pr-labeler-on-change.yml
