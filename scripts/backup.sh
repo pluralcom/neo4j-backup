@@ -23,7 +23,6 @@ if [ -z $BACKUP_NAME ]; then
 fi
 
 BACKUP_SET="$BACKUP_NAME-$(date "+%Y-%m-%d")"
-
 mkdir /backup/$BACKUP_SET
 
 echo "=============== Neo4j Backup ==============================="
