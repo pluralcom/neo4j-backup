@@ -23,6 +23,7 @@ if [ -z $BACKUP_NAME ]; then
 fi
 
 BACKUP_SET="$BACKUP_NAME-$(date "+%Y-%m-%d")"
+mkdir /backup/$BACKUP_SET
 
 echo "=============== Neo4j Backup ==============================="
 echo "Beginning backup from $NEO4J_ADDR to /backup/$BACKUP_SET"
@@ -35,8 +36,8 @@ neo4j-admin backup \
     --backup-dir=/backup/$BACKUP_SET \
     --pagecache=$PAGE_CACHE
 
-echo "Backup size:"
-du -hs "/backup/$BACKUP_SET"
+echo "Backup folder:"
+ls -al /backup
 
 echo "Tarring -> /backup/$BACKUP_SET.tar"
 tar -cvf "/backup/$BACKUP_SET.tar" "/backup/$BACKUP_SET" --remove-files
