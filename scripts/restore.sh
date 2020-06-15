@@ -154,6 +154,7 @@ else
     echo "Restoration succeeded"
 fi
 
+# @legacy
 # echo "Rehoming database"
 # echo "Restored to:"
 # ls -l /var/lib/neo4j/data/databases
@@ -174,11 +175,12 @@ fi
 # fi
 
 # mv /var/lib/neo4j/data/databases/neo4j /data/databases/
+# @legacy
 
 # Modify permissions/group, because we're running as root.
 # Neo4j user id is 101 on the official docker image
-chown -R 101:101 /data/databases
-chgrp -R 101:101 /data/transactions
+chown -R 101 /data/databases
+chgrp -R 101 /data/transactions
 
 echo "Final permissions"
 ls -al /data/databases/neo4j
