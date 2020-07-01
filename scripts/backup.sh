@@ -6,7 +6,7 @@ if [ -z $NEO4J_ADDR ] ; then
 fi
 
 if [ -z $S3_BUCKET_PATH ]; then
-    echo "You must specify a BUCKET address such as gs://my-backups/"
+    echo "You must specify a BUCKET address such as s3://my-backups/"
     exit 1
 fi
 
@@ -23,7 +23,7 @@ if [ -z $BACKUP_NAME ]; then
 fi
 
 BACKUP_SET="$BACKUP_NAME-$(date "+%Y-%m-%d")"
-mkdir /backup/$BACKUP_SET
+mkdir -p /backup/$BACKUP_SET
 
 echo "=============== Neo4j Backup ==============================="
 echo "Beginning backup from $NEO4J_ADDR to /backup/$BACKUP_SET"

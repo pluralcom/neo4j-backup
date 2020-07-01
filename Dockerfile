@@ -12,6 +12,7 @@ RUN unzip awscliv2.zip
 RUN ./aws/install
 
 RUN mkdir /backup
+RUN chown -R neo4j:neo4j /backup
 
 # Adding backup script
 ADD ./scripts/backup.sh /scripts/backup.sh
