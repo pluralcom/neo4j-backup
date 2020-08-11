@@ -3,7 +3,7 @@ name: Release and deploy to docker hub
 on:
    push:
      branches:    
-      - master
+      - main
 
 jobs:
   build:
@@ -37,7 +37,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.ownEnvVars.outputs.PACKAGE_VERSION }}
-          commit: master
+          commit: main
           body: ${{ steps.ownEnvVars.outputs.COMMIT_LOG }}
 
       - name: Push to docker tag:version
