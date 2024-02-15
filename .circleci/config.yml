@@ -3,7 +3,7 @@ jobs:
   docker-build:
     working_directory: ~/repo
     docker:
-      - image: cimg/node:18.19
+      - image: cimg/node:20.11
     steps:
       - checkout
       - setup_remote_docker:
